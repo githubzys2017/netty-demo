@@ -1,4 +1,4 @@
-package com.shuai;
+package com.shuai.basic;
 
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;

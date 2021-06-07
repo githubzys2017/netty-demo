@@ -1,4 +1,4 @@
-package com.shuai;
+package com.shuai.basic;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
