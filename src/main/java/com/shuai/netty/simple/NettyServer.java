@@ -13,26 +13,33 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 public class NettyServer {
     public static void main(String[] args) throws InterruptedException {
 
-        EventLoopGroup boosGroup = new NioEventLoopGroup();
+        EventLoopGroup boosGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
 
-        ServerBootstrap bootstrap = new ServerBootstrap();
+        try {
+            ServerBootstrap bootstrap = new ServerBootstrap();
 
-        bootstrap.group(boosGroup, workerGroup)
-                .channel(NioServerSocketChannel.class)
-                .option(ChannelOption.SO_BACKLOG, 128)
-                .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(null);
-                    }
-                });
+            bootstrap.group(boosGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class)
+                    .option(ChannelOption.SO_BACKLOG, 128)
+                    .childOption(ChannelOption.SO_KEEPALIVE, true)
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(SocketChannel ch) throws Exception {
+                            ch.pipeline().addLast(new NettyServerHandler());
+                        }
+                    });
 
-        System.out.println(".... server is ready ...");
+            System.out.println(".... server is ready ...");
 
-        ChannelFuture cf = bootstrap.bind(6668);
+            ChannelFuture cf = bootstrap.bind(6668);
 
-        cf.channel().closeFuture().sync();
+            cf.channel().closeFuture().sync();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            boosGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
+        }
     }
 }
