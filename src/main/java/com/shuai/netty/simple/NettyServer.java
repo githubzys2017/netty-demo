@@ -1,10 +1,7 @@
 package com.shuai.netty.simple;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -32,7 +29,18 @@ public class NettyServer {
 
             System.out.println(".... server is ready ...");
 
-            ChannelFuture cf = bootstrap.bind(6668);
+            final ChannelFuture cf = bootstrap.bind(6668).sync();
+
+            cf.addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                    if (cf.isSuccess()) {
+                        System.out.println("监听端口成功");
+                    } else {
+                        System.out.println("监听端口失败");
+                    }
+                }
+            });
 
             cf.channel().closeFuture().sync();
         } catch (InterruptedException e) {
